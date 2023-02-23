@@ -170,7 +170,6 @@
 
         switch (request.networkServiceType) {
         case NSURLNetworkServiceTypeDefault:
-        case NSURLNetworkServiceTypeCallSignaling:
             break;
         case NSURLNetworkServiceTypeVoIP:
             networkServiceType = NSStreamNetworkServiceTypeVoIP;
@@ -215,7 +214,7 @@
 - (void)open {
     [self executeWork:^{
         if(_opened || _readyState != PSWebSocketReadyStateConnecting) {
-            [NSException raise:@"Invalid State" format:@"You cannot open a PSWebSocket more than once."];
+            NSLog(@"%s RETURN Invalid State. You cannot open a PSWebSocket more than once.", __FUNCTION__);
             return;
         }
         
@@ -229,7 +228,7 @@
     NSParameterAssert(message);
     [self executeWork:^{
         if(!_opened || _readyState == PSWebSocketReadyStateConnecting) {
-            [NSException raise:@"Invalid State" format:@"You cannot send a PSWebSocket messages before it is finished opening."];
+            NSLog(@"%s RETURN Invalid State. You cannot send a PSWebSocket messages before it is finished opening.", __FUNCTION__);
             return;
         }
         
@@ -238,7 +237,7 @@
         } else if([message isKindOfClass:[NSData class]]) {
             [_driver sendBinary:message];
         } else {
-            [NSException raise:@"Invalid Message" format:@"Messages must be instances of NSString or NSData"];
+            NSLog(@"%s RETURN Invalid Message. Messages must be instances of NSString or NSData.", __FUNCTION__);
         }
     }];
 }
@@ -300,7 +299,7 @@
 - (void)setStreamProperty:(CFTypeRef)property forKey:(NSString *)key {
     [self executeWorkAndWait:^{
         if(_opened || _readyState != PSWebSocketReadyStateConnecting) {
-            [NSException raise:@"Invalid State" format:@"You cannot set stream properties on a PSWebSocket once it is opened."];
+            NSLog(@"%s RETURN Invalid State. You cannot set stream properties on a PSWebSocket once it is opened.", __FUNCTION__);
             return;
         }
         CFWriteStreamSetProperty((__bridge CFWriteStreamRef)_outputStream, (__bridge CFStringRef)key, (CFTypeRef)property);
@@ -526,7 +525,7 @@
 
 - (void)driverDidOpen:(PSWebSocketDriver *)driver {
     if(_readyState != PSWebSocketReadyStateConnecting) {
-        [NSException raise:@"Invalid State" format:@"Ready state must be connecting to become open"];
+        NSLog(@"%s RETURN Invalid State. Ready state must be connecting to become open.", __FUNCTION__);
         return;
     }
     _readyState = PSWebSocketReadyStateOpen;
@@ -581,7 +580,7 @@
     switch(event) {
         case NSStreamEventOpenCompleted: {
             if(_mode != PSWebSocketModeClient) {
-                [NSException raise:@"Invalid State" format:@"Server mode should have already opened streams."];
+                NSLog(@"%s RETURN Invalid State. Server mode should have already opened streams.", __FUNCTION__);
                 return;
             }
             if(_readyState >= PSWebSocketReadyStateClosing) {
@@ -701,6 +700,7 @@
 #pragma mark - Dealloc
 
 - (void)dealloc {
+    NSLog(@"PSWebSocket dealloc isMainThread = %i, self = %p", [NSThread isMainThread], self);
     [self disconnect];
 }
 

@@ -64,7 +64,7 @@
         while([runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]) {
             // no-op
         }
-        [NSException raise:NSInternalInconsistencyException format:@"PSWebSocketNetworkThread should never exit."];
+        NSLog(@"PSWebSocketNetworkThread should never exit.");
     }
 }
 
