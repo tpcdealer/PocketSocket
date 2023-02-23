@@ -60,7 +60,7 @@
 @property(nonatomic, weak) id<PSWebSocketServerDelegate> delegate;
 @property(nonatomic) dispatch_queue_t delegateQueue;
 /// Expose the current port if the server started with a dynamic port
-@property(nonatomic, readonly) NSInteger port;
+@property(nonatomic, readonly) NSUInteger port;
 
 #pragma mark - Initialization
 /**
@@ -70,9 +70,9 @@
 /**
  Set port to 0 to use a dynamic port assigned by the system.
  */
-+ (instancetype)serverWithHost:(NSString *)host port:(NSInteger)port;
++ (instancetype)serverWithHost:(NSString *)host port:(NSUInteger)port;
 + (instancetype)serverWithHost:(NSString *)host
-                          port:(NSInteger)port
+                          port:(NSUInteger)port
                SSLCertificates:(NSArray *)SSLCertificates;
 
 #pragma mark - Actions

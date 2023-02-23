@@ -72,7 +72,7 @@ void PSWebSocketServerAcceptCallback(CFSocketRef s, CFSocketCallBackType type,
 
 @property(nonatomic) BOOL running;
 @property(nonatomic) BOOL secure;
-@property(nonatomic) BOOL isSystemAssignedPort;//w
+@property(nonatomic) BOOL isSystemAssignedPort;
 @property(nonatomic) CFSocketRef socket;
 @property(nonatomic) CFRunLoopSourceRef socketRunLoopSource;
 
@@ -80,8 +80,7 @@ void PSWebSocketServerAcceptCallback(CFSocketRef s, CFSocketCallBackType type,
 @property(nonatomic) NSMapTable *connectionsByStreams;
 
 @property(nonatomic) NSMutableSet *webSockets;
-
-@property(nonatomic) NSInteger port;
+@property(nonatomic) NSUInteger port;
 
 @end
 
@@ -98,19 +97,20 @@ void PSWebSocketServerAcceptCallback(CFSocketRef s, CFSocketCallBackType type,
   return [self.class serverWithHost:@"127.0.0.1" port:0];
 }
 
-+ (instancetype)serverWithHost:(NSString *)host port:(NSInteger)port {
++ (instancetype)serverWithHost:(NSString *)host port:(NSUInteger)port {
   return [[self alloc] initWithHost:host port:port SSLCertificates:nil];
 }
 
 + (instancetype)serverWithHost:(NSString *)host
-                          port:(NSInteger)port
+                          port:(NSUInteger)port
                SSLCertificates:(NSArray *)SSLCertificates {
   return [[self alloc] initWithHost:host
                                port:port
                     SSLCertificates:SSLCertificates];
 }
+
 - (instancetype)initWithHost:(NSString *)host
-                        port:(NSInteger)port
+                        port:(NSUInteger)port
              SSLCertificates:(NSArray *)SSLCertificates {
   if ((self = [super init])) {
     _workQueue = dispatch_queue_create(nil, nil);
@@ -119,7 +119,7 @@ void PSWebSocketServerAcceptCallback(CFSocketRef s, CFSocketCallBackType type,
     _SSLCertificates = [SSLCertificates copy];
     _secure = (_SSLCertificates != nil);
     _port = port;
-    _isSystemAssignedPort = (port == 0);//w
+    _isSystemAssignedPort = (port == 0);
     
     // create addr data
     struct sockaddr_in addr;
@@ -129,7 +129,6 @@ void PSWebSocketServerAcceptCallback(CFSocketRef s, CFSocketCallBackType type,
     if (host && host.length && ![host isEqualToString:@"0.0.0.0"]) {
       addr.sin_addr.s_addr = inet_addr(host.UTF8String);
       if (!addr.sin_addr.s_addr) {
-        //[NSException raise:@"Invalid host" format:@"Could not formulate internet address from host: %@", host];
         NSLog(@"%s RETURN nil Could not formulate internet address from host: %@", __FUNCTION__, host);
         return nil;
       }
@@ -212,7 +211,7 @@ void PSWebSocketServerAcceptCallback(CFSocketRef s, CFSocketCallBackType type,
   }
 
   // Get socket port in case we use a dynamic port
-  if (_isSystemAssignedPort) {//w
+  if (_isSystemAssignedPort) {
     struct sockaddr_in sin;
     bzero(&sin, sizeof(struct sockaddr_in));
     socklen_t addrlen = sizeof(sin);
@@ -220,11 +219,11 @@ void PSWebSocketServerAcceptCallback(CFSocketRef s, CFSocketCallBackType type,
       self.port = ntohs(sin.sin_port);
     }
     else {
-        NSLog(@"Failed retrieving socket address");//w
+        NSLog(@"Failed retrieving socket address");
     }
   }
 
-    //NSLog(@"%s _isSystemAssignedPort = %i, self.port = %li", __FUNCTION__, _isSystemAssignedPort, (long)self.port);//w
+    //NSLog(@"%s _isSystemAssignedPort = %i, self.port = %li", __FUNCTION__, _isSystemAssignedPort, (long)self.port);
   // schedule
   _socketRunLoopSource =
       CFSocketCreateRunLoopSource(kCFAllocatorDefault, _socket, 0);
